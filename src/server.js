@@ -6,10 +6,13 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3500;
 const server = http.createServer(app);
+app.use(express.json());
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'view', 'index.html'));
 });
+
+app.use('/users', require('./routes/users'));
 
 const io = initializeSocket(server);
 

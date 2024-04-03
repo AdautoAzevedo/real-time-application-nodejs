@@ -1,9 +1,11 @@
 const socketIo = require('socket.io');
 
-const initializeSocket = (server) => {
-    const io = socketIo(server);
-    const connectedUser = new Map();
+let io;
+const connectedUser = new Map();
     
+
+const initializeSocket = (server) => {  
+    io = socketIo(server);
     io.on('connection', (socket) => {
         console.log("User connected: ", socket.id);
     
@@ -36,6 +38,9 @@ const initializeSocket = (server) => {
     
     return io;
 }
+const getUserSocket = (userId) => {
+    return connectedUser.get(userId);
+}
 
-module.exports = initializeSocket;
+module.exports = {initializeSocket, getUserSocket};
 
