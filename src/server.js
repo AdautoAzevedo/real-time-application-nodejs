@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const initializeSocket = require('./services/socketLogic');
+const socketLogic = require('./services/socketLogic');
 const app = express();
 const path = require('path');
 
@@ -13,7 +13,8 @@ app.get("/", (req, res) => {
 });
 
 app.use('/users', require('./routes/users'));
+app.use('/messages', require('./routes/messages'));
 
-const io = initializeSocket(server);
+const io = socketLogic.initializeSocket(server);
 
 server.listen(PORT, () => console.log(`Server running at Port ${PORT}`));
