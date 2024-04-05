@@ -1,4 +1,5 @@
 const socketIo = require('socket.io');
+const messageController = require('../controller/messageController');
 
 let io;
 const connectedUser = new Map();
@@ -17,12 +18,8 @@ const initializeSocket = (server) => {
             })
         })
     
-        socket.on('message', (data) => {
-            const username = connectedUser.get(socket.id);
-            io.emit('message',{
-                username,
-                message: data
-            });
+        socket.on('message', (message) => {
+            messageController.sendMessage(io, message);
         });
     
         socket.on('disconnect', () => {

@@ -1,46 +1,22 @@
 const Message = require('../model/message');
 const User = require('../model/user');
 const io = require('../services/socketLogic');
+const socketIo = require('socket.io');
 
-const sendMessage = async (req, res) => {
-    const { senderId, receiverId, content} = req.body;
-    console.log(senderId);
-    console.log(receiverId);
-    console.log(content);
-
+const sendMessage = async (io, message) => {
+    const { senderId, receiverId, content} = message;
     try {
-        /* const sender = await User.findeByPk(senderId);
-        const receiver = await User.findeByPk(receiverId);
 
-        if (!sender || !receiver) {
-            return res.status(404).json({message: 'Sender or receiver not found'});
-        }
+        console.log("Received message: ", message);
+        
+        io.emit('newMessage', message);
+        
 
-        const message = await Message.create({
-            senderId,
-            receiverId,
-            content
-        }); */
-
-        const message = {
-            senderId,
-            receiverId,
-            content
-        }
-
-        console.log(message);
-
-        const receiverSocket = io.getUserSocket(receiverId);
-        if (receiverSocket) {
-            receiverSocket.emit('newMessage', message);
-        }
-
-        return res.status(201).json({message});
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: error.message});
     }
 }
+
 
 const getMessages = async (req, res) => {
     const {senderId, receiverId} = req.body;
