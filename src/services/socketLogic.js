@@ -5,7 +5,7 @@ let io;
 const connectedUser = new Map();
     
 
-const initializeSocket = (server) => {  
+const initializeSocket = (server) => {
     io = socketIo(server);
     io.on('connection', (socket) => {
         console.log("User connected: ", socket.id);

@@ -26,6 +26,8 @@
         let socket = io();
         var form = document.getElementById('form');
         var input = document.getElementById('input');
+        var messages = document.getElementById('messages');
+        var chat = document.getElementById('chat-container');
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -41,7 +43,8 @@
         })
 
         socket.on('newMessage', (message) => {
-            console.log(message);
+            var newItem = document.createElement("li").textContent(message);
+            chat.appendChild(newItem); 
         });
 
         const login = () => {
