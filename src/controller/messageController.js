@@ -6,10 +6,19 @@ const socketIo = require('socket.io');
 const sendMessage = async (io, message) => {
     const { senderId, receiverId, content} = message;
     try {
-
-        console.log("Received message: ", message);
+        const sender = await User.findByPk(senderId);
+        const receiver = await User.findByPk(receiverId);
         
-        io.emit('newMessage', message);
+        if (!sender || !receiver) {
+            console.log("Sender or receiver not found");
+            return;
+        }
+        const messageSaved = await Message.create({
+            content,
+            sender_id: senderId,
+            receiver_id: receiverId
+        });
+        io.emit('newMessage: ', message);
         
 
     } catch (error) {
