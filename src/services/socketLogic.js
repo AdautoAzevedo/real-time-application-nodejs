@@ -11,21 +11,25 @@ const initializeSocket = (server) => {
         console.log("User connected: ", socket.id);
     
         socket.on('login', (username) => {
-            connectedUser.set(socket.id, username);
+            connectedUser.set(username, socket.id);
             io.emit('message', {
                 username: 'Server', 
-                message: `${username} joined the chat`
+                message: `${username} joined the chat`,
+                socketId: socket.id
             })
         })
     
         socket.on('message', (message) => {
-            messageController.sendMessage(io, message);
+            const receiverSocket = connectedUser.get(message.receiverUsername);
+            if (receiverSocket) {
+                io.to(receiverSocket).emit(message);
+            }
         });
     
         socket.on('disconnect', () => {
             console.log("User disconnected");
-            const username = connectedUser.get(socket.id);
-            connectedUser.delete(socket.id);
+            const user = connectedUser.get(username);
+            connectedUser.delete(username);
             io.emit('message', {
                 username: 'Server',
                 message: `${username} left the chat`

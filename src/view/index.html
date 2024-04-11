@@ -34,7 +34,7 @@
             if (input.value) {
                 const message = {
                     senderId: 1,
-                    receiverId: 2,
+                    receiverId: "teste",
                     content: input.value
                 };
                 socket.emit('message', message);
@@ -47,6 +47,11 @@
             chat.appendChild(newItem); 
         });
 
+        socket.on('userLogged', (message) => {
+            console.log(message);
+            var newItem = document.createElement("li").textContent(message);
+            chat.appendChild(newItem); 
+        })
         const login = () => {
             const usernameInput = document.getElementById('username-input');
             const username = usernameInput.value.trim();

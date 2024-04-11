@@ -19,7 +19,6 @@ const sendMessage = async (io, message) => {
             receiver_id: receiverId
         });
         io.emit('newMessage: ', message);
-        
 
     } catch (error) {
         console.error(error);
