@@ -12,6 +12,10 @@
         <input type="text" id="username-input" placeholder="Enter your username here">
         <button onclick="login()">Send</button>
     </div>
+
+    <select id="userList">
+        <option value="">Select a user</option>
+    </select>
     
     <div id="chat-container">
         <ul id="messages">
@@ -31,10 +35,11 @@
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            const to = document.getElementById('userList').value;
             if (input.value) {
                 const message = {
                     senderId: 1,
-                    receiverId: "teste",
+                    receiverId: to,
                     content: input.value
                 };
                 socket.emit('message', message);
@@ -43,14 +48,20 @@
         })
 
         socket.on('newMessage', (message) => {
-            var newItem = document.createElement("li").textContent(message);
+            console.log(message);
+            var newItem = document.createElement("li")
+            newItem.textContent = message.content;
             chat.appendChild(newItem); 
         });
 
-        socket.on('userLogged', (message) => {
-            console.log(message);
-            var newItem = document.createElement("li").textContent(message);
-            chat.appendChild(newItem); 
+        socket.on('userLogged', (connectedUsers) => {
+            const userListElement = document.getElementById('userList');
+            connectedUsers.forEach((user) => {
+                const option = document.createElement('option');
+                option.value = user;
+                option.textContent = user;
+                userListElement.appendChild(option);
+            })
         })
         const login = () => {
             const usernameInput = document.getElementById('username-input');

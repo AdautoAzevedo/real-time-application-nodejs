@@ -12,17 +12,14 @@ const initializeSocket = (server) => {
     
         socket.on('login', (username) => {
             connectedUser.set(username, socket.id);
-            io.emit('message', {
-                username: 'Server', 
-                message: `${username} joined the chat`,
-                socketId: socket.id
-            })
+            console.log(connectedUser);
+            io.emit('userLogged',  Array.from(connectedUser.keys()));
         })
     
         socket.on('message', (message) => {
-            const receiverSocket = connectedUser.get(message.receiverUsername);
+            const receiverSocket = connectedUser.get(message.receiverId);
             if (receiverSocket) {
-                io.to(receiverSocket).emit(message);
+                io.to(receiverSocket).emit('newMessage',message);
             }
         });
     
