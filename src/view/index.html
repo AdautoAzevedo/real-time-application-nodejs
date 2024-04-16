@@ -28,6 +28,7 @@
 
     <script>
         let socket = io();
+        const baseURL = 'http://localhost:3500/messages';
         var form = document.getElementById('form');
         var input = document.getElementById('input');
         var messages = document.getElementById('messages');
@@ -42,10 +43,32 @@
                     receiverId: to,
                     content: input.value
                 };
+                saveMessage(message);
                 socket.emit('message', message);
                 input.value = '';
             }
         })
+
+        const saveMessage = async (message) => {
+            try {
+                const response = await fetch(baseURL, {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json"
+                    },
+                    body: JSON.stringify(message)
+                });
+
+                if(!response.ok){
+                const message = response.status;
+                throw new Error(message);
+            }
+
+            console.log(response);
+            } catch (error) {
+                console.error(error);
+            }
+        }
 
         socket.on('newMessage', (message) => {
             console.log(message);

@@ -3,8 +3,8 @@ const User = require('../model/user');
 const io = require('../services/socketLogic');
 const socketIo = require('socket.io');
 
-const sendMessage = async (io, message) => {
-    const { senderId, receiverId, content} = message;
+const addMessage = async (req, res) => {
+    const { senderId, receiverId, content} = req.body;
     try {
         const sender = await User.findByPk(senderId);
         const receiver = await User.findByPk(receiverId);
@@ -18,7 +18,8 @@ const sendMessage = async (io, message) => {
             sender_id: senderId,
             receiver_id: receiverId
         });
-        io.emit('newMessage: ', message);
+
+        return res.status(201).json({messageFromServer: "Message saved sucessfully"});
 
     } catch (error) {
         console.error(error);
@@ -51,4 +52,4 @@ const getMessages = async (req, res) => {
         callback({ error: 'Internal server error.' });
     }
 }
-module.exports = { sendMessage, getMessages };
+module.exports = { addMessage, getMessages };
