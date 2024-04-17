@@ -10,14 +10,15 @@
 
     <div id="login-form">
         <input type="text" id="username-input" placeholder="Enter your username here">
+        <input type="password" name="" id="password" placeholder="password">
         <button onclick="login()">Send</button>
     </div>
 
-    <select id="userList">
-        <option value="">Select a user</option>
-    </select>
     
-    <div id="chat-container">
+    <div id="chat-container" style="display: none;">
+        <select id="userList">
+            <option value="">Select a user</option>
+        </select>
         <ul id="messages">
         </ul>
         <form id="form">
@@ -28,7 +29,8 @@
 
     <script>
         let socket = io();
-        const baseURL = 'http://localhost:3500/messages';
+        const messagesURL = 'http://localhost:3500/messages';
+        const usersURL = 'http://localhost:3500/users';
         var form = document.getElementById('form');
         var input = document.getElementById('input');
         var messages = document.getElementById('messages');
@@ -51,7 +53,7 @@
 
         const saveMessage = async (message) => {
             try {
-                const response = await fetch(baseURL, {
+                const response = await fetch(messagesURL, {
                     method: "POST",
                     headers: {
                         "Content-type": "application/json"
@@ -86,11 +88,19 @@
                 userListElement.appendChild(option);
             })
         })
-        const login = () => {
-            const usernameInput = document.getElementById('username-input');
-            const username = usernameInput.value.trim();
+        const login = async () => {
+            const username = document.getElementById('username-input').value;
+            const password = document.getElementById('password').value;
+            
+           const response = await fetch(usersURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({username, password})
+            })
 
-            if (username !== '') {
+            if (response.ok) {
                 socket.emit('login', username);
                 document.getElementById('login-form').style.display = 'none';
                 document.getElementById('chat-container').style.display = 'block';
