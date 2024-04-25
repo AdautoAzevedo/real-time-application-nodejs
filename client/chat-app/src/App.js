@@ -3,53 +3,78 @@ import {useEffect, useState} from 'react';
 import io from 'socket.io-client';
 
 function App() {
-  const serverURL = "http://localhost:3500";
 
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
-  const [userList, setUserList] = useState([]);
-  const [selectedUser, setSelectedUser] = useState('');
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState('');
+  const [connectedUsers, setConnectedUsers] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState('');
 
   useEffect(() => {
-    const newSocket = io(serverURL);
+    const newSocket = io('http://localhost:3500');
     setSocket(newSocket);
-  
+    
+    newSocket.on('userLogged', (users) => {
+      setConnectedUsers(users);
+    });
+
+    newSocket.on('newMessage', (message) => {
+      setMessageInput((prevMessages => [...prevMessages, message]));
+    });
+
     return () => {
-      newSocket.disconnect();
+      newSocket.close();
     }
   }, []);
 
-  useEffect(() => {
-    if (!socket) return;
+  const handleLogin = () => {
+    if (socket && loggedInUser) {
+      socket.emit('login', loggedInUser);
 
-    socket.on('receiveMessage', (data) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-    });
-
-    socket.on('userList', (data) => {
-      setUserList(data);
-    })
-  
-    return () => {
-      socket.off('receiveMessage');
-      socket.off('userList');
     }
-  }, [socket]);
+  };
 
   const handleSendMessage = () => {
-    if (!selectedUser || !message) return;
-    socket.emit('sendMessage', {to: selectedUser, message});
-    setMessage('');
+    if (socket && messageInput.trim() !== '') {
+      const newMessage = {
+        senderId: loggedInUser,
+        receiverId: 1,
+        content: messageInput.trim(),
+      };
+      socket.emit('message', newMessage);
+      setMessageInput('');
+    }
   };
   
   
   return (
     <div className="App">
-      
+     {loggedInUser ? (
+      <div>
+        <h2>Chat App</h2>
+        <div>
+          <h3>Connected users: </h3>
+          <ul>
+            {connectedUsers.map((user) => (
+              <li key={user}> {user} </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3>Messages: </h3>
+          <ul>
+            {messages.map((message, index) => (
+              <li key={index}>
+                {message.senderId} : {message.content}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)}/>
+        <button onClick={handleSendMessage}>Send</button>
+      </div>
+     )} 
     </div>
   );
 }
