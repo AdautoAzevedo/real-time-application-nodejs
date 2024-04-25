@@ -74,6 +74,12 @@ function App() {
         <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)}/>
         <button onClick={handleSendMessage}>Send</button>
       </div>
+     ) : (
+      <div>
+        <h2>Chat App</h2>
+        <input type="text" placeholder='Enter your name' value={loggedInUser} onChange={(e) => setLoggedInUser(e.target.value)}/>
+        <button onClick={handleLogin}>Login</button>
+      </div>
      )} 
     </div>
   );
