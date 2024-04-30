@@ -2,7 +2,7 @@ const socketIo = require('socket.io');
 const messageController = require('../controller/messageController');
 
 let io;
-const connectedUser = new Map();
+const connectedUser = {};
     
 
 const initializeSocket = (server) => {
@@ -10,10 +10,10 @@ const initializeSocket = (server) => {
     io.on('connection', (socket) => {
         console.log("User connected: ", socket.id);
     
-        socket.on('login', (username) => {
-            connectedUser.set(username, socket.id);
+        socket.on('login', (userId) => {
+            connectedUser[userId] = socket.id;
             console.log(connectedUser);
-            io.emit('userLogged',  Array.from(connectedUser.keys()));
+            io.emit('userLogged', connectedUser);
         })
     
         socket.on('message', (message) => {
@@ -24,20 +24,15 @@ const initializeSocket = (server) => {
         });
     
         socket.on('disconnect', () => {
-            console.log("User disconnected");
-            const user = connectedUser.get(username);
-            connectedUser.delete(username);
-            io.emit('message', {
-                username: 'Server',
-                message: `${username} left the chat`
+            Object.keys(connectedUser).forEach((userId) => {
+                if (connectedUser[userId] === socket.id) {
+                    delete connectedUser[userId];
+                }
             })
         })
     });
     
     return io;
-}
-const getUserSocket = (userId) => {
-    return connectedUser.get(userId);
 }
 
 module.exports = {initializeSocket, getUserSocket};
