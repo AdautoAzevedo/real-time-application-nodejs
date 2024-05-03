@@ -9,6 +9,7 @@ function App() {
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
+  const [receiverId, setReceiverId] = useState('');
 
   useEffect(() => {
     const newSocket = io('http://localhost:3500');
@@ -35,10 +36,10 @@ function App() {
   };
 
   const handleSendMessage = () => {
-    if (socket && messageInput.trim() !== '') {
+    if (socket && messageInput.trim() !== '' && receiverId) {
       const newMessage = {
         senderId: loggedInUser,
-        receiverId: 1,
+        receiverId: receiverId,
         content: messageInput.trim(),
       };
       socket.emit('message', newMessage);
@@ -51,12 +52,15 @@ function App() {
     <div className="App">
      {loggedInUser ? (
       <div>
-        <h2>Chat App</h2>
+        <h2>Chat App - Logged in as {loggedInUser}</h2>
         <div>
           <h3>Connected users: </h3>
           <ul>
             {connectedUsers.map((user) => (
-              <li key={user}> {user} </li>
+              <li key={user}>
+                {user} 
+                <button onClick={() => setReceiverId(user)}> Send message</button>
+              </li>
             ))}
           </ul>
         </div>
